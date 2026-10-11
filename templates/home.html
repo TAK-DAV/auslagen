@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TAK Auslagen</title>
+  <link rel="stylesheet" href="{% static 'home.css' %}">
+</head>
+<body>
+  <main>
+    <p class="mark">Sektion TAK</p>
+    <h1>Auslagen</h1>
+    <p>
+      Ehrenamtliche und Angestellte reichen Auslagen mit Beleg ein.
+      Zwei Personen prüfen. Danach entstehen eine Buchungsliste, eine SEPA-Datei
+      und bei Verzicht eine Zuwendungsbestätigung.
+    </p>
+    <p>
+      In dieser ersten Fassung liegen Stammdaten und Abrechnungen im Verwaltungsbereich.
+      Das Einreichen vom Handy folgt als Nächstes.
+    </p>
+    <a class="button" href="{% url 'admin:index' %}">Verwaltungsbereich öffnen</a>
+  </main>
+</body>
+</html>
