@@ -36,8 +36,8 @@ def test_car_line_has_no_vat_and_copies_the_default_sphere(seeded):
     assert line.vat_result == VatResult.NONE
     assert line.tax_rate_id is None
     assert line.sphere.code == SphereCode.NON_PROFIT
-    assert line.net is None
-    assert line.tax_amount is None
+    assert line.net == line.gross
+    assert line.tax_amount == Decimal("0.00")
 
 
 @pytest.mark.django_db
@@ -57,7 +57,7 @@ def test_other_expense_starts_as_needs_review(seeded):
 
 
 @pytest.mark.django_db
-def test_ordinary_line_does_not_invent_a_vat_result(seeded):
+def test_transit_on_verwaltung_has_no_input_vat(seeded):
     person = make_person()
     report = make_report(person)
     receipt = make_receipt(report)
@@ -73,7 +73,9 @@ def test_ordinary_line_does_not_invent_a_vat_result(seeded):
         receipt=receipt,
         gross=Decimal("19.00"),
     )
-    assert line.vat_result == ""
+    assert line.vat_result == VatResult.NONE
+    assert line.net == Decimal("15.97")
+    assert line.tax_amount == Decimal("3.03")
 
 
 @pytest.mark.django_db
@@ -116,6 +118,7 @@ def test_hut_and_area_must_match_the_cost_center(seeded):
     assert "cost_center" in caught.value.error_dict
 
     line.cost_center = CostCenter.objects.get(name="Rotwandhaus Betrieb")
+    line.vat_result = ""
     line.full_clean()
 
 

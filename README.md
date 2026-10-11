@@ -2,7 +2,7 @@
 
 Web-App für die Auslagen einer DAV-Sektion. Ehrenamtliche und Angestellte reichen Belege ein, zwei Personen prüfen, am Ende stehen Buchungsliste, SEPA-Datei und bei Verzicht eine Zuwendungsbestätigung.
 
-Diese Fassung ist das Gerüst: Datenmodell, Verwaltungsbereich und Beispiel-Stammdaten. Steuerrechnung, Einreichen vom Handy, Freigabe, Spenden-PDF und Exporte folgen in den nächsten Schritten.
+Stammdaten und Verwaltungsbereich stehen. Die Steuer- und Sphärenlogik rechnet Netto, Steuer und Vorsteuer je Position. Einreichen vom Handy, Freigabe, Spenden-PDF und Exporte folgen als Nächstes.
 
 ## Was du zum Start brauchst
 
@@ -83,7 +83,9 @@ Am Ende steht eine Zeile mit der Anzahl bestandener Tests. Eine fehlgeschlagene 
 
 - Die sachliche Freigabe gilt je Position. Eine Abrechnung geht erst weiter, wenn jede Position von einem Freigeber ihrer Kostenstelle geprüft ist.
 - Verzicht und Auszahlung sind zwei Beträge. Der Status folgt nur dem Betrag, der überwiesen wird.
-- Steuer wird je Position kaufmännisch auf den Cent gerundet. Das Netto ist Brutto minus diese Steuer. Die Rechnung selbst kommt im nächsten Schritt. Bis dahin bleiben Netto und Steuer leer.
+- Steuer = Brutto − Brutto / (1 + Satz), je Position kaufmännisch auf den Cent. Netto = Brutto − Steuer. Niemals Gleitkomma.
+- Vorsteuer: keine bei Kostenstelle ohne Abzug; DE bzw. AT nur wenn Modus und Belegland passen; sonst und bei „Sonstiges“ → Prüfung nötig. DE- und AT-Summen bleiben getrennt.
+- Über der Kleinbetragsgrenze (DE 250 €, AT 400 €) erscheint ein Hinweis auf eine vollständige Rechnung.
 - Vorschüsse sind nicht enthalten.
 
 ## Betrieb
@@ -106,4 +108,4 @@ Diese Punkte sind im Verwaltungsbereich oder im Code mit `FACHLICH OFFEN` markie
 - Der Nummernkreis der Belegnummer.
 - Bei mehreren Positionen zählt für die Drei-Monats-Warnung beim Verzicht das älteste Auslagedatum.
 
-Belege, bei denen das Land des Belegs nicht zum Land der Kostenstelle passt, bleiben zur manuellen Entscheidung. Das ist so gewollt und wird mit der Steuerlogik als „Prüfung nötig“ gesetzt.
+Belege, bei denen das Land des Belegs nicht zum Land der Kostenstelle passt, bleiben zur manuellen Entscheidung und stehen als „Prüfung nötig“. Eine andere Vorsteuer braucht dann eine Begründung.
