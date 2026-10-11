@@ -86,6 +86,10 @@ Am Ende steht eine Zeile mit der Anzahl bestandener Tests. Eine fehlgeschlagene 
 - Steuer wird je Position kaufmännisch auf den Cent gerundet. Das Netto ist Brutto minus diese Steuer. Die Rechnung selbst kommt im nächsten Schritt. Bis dahin bleiben Netto und Steuer leer.
 - Vorschüsse sind nicht enthalten.
 
+## Betrieb
+
+Echtbetrieb: AWS Lightsail in Frankfurt, Docker Compose wie lokal, DNS über die vorhandenen Route-53-Subdomains, HTTPS auf dem Server, tägliches Backup von Datenbank und Belegen außerhalb des Servers. Kein EKS für dieses Tool. Details und offene Punkte: [docs/deployment.md](docs/deployment.md). Die genaue Server-Anleitung folgt in Phase 7.
+
 ## Fachlich offen
 
 Diese Punkte sind im Verwaltungsbereich oder im Code mit `FACHLICH OFFEN` markiert. Ein erneutes Anlegen der Stammdaten überschreibt spätere Änderungen nicht.
