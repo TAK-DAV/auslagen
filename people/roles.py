@@ -1,0 +1,6 @@
+SUBMITTER = "Einreicher"
+APPROVER = "Freigeber"
+TREASURER = "Schatzmeister"
+ADMIN = "Admin"
+
+ROLE_NAMES = (SUBMITTER, APPROVER, TREASURER, ADMIN)
