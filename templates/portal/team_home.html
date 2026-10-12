@@ -9,6 +9,8 @@
   {% endif %}
   {% if is_treasurer %}
   <li><a href="{% url 'portal:treasurer_queue' %}">Finale Freigabe ({{ treasurer_queue|length }})</a></li>
+  <li><a href="{% url 'portal:finance_home' %}">Zahlungsläufe und Exporte</a></li>
+  <li><a href="{% url 'portal:donations_year' %}">Zuwendungsbestätigungen</a></li>
   <li><a href="{% url 'admin:index' %}">Verwaltungsbereich</a></li>
   {% endif %}
 </ul>

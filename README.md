@@ -2,7 +2,7 @@
 
 Web-App für die Auslagen einer DAV-Sektion. Ehrenamtliche und Angestellte reichen Belege ein, zwei Personen prüfen, am Ende stehen Buchungsliste, SEPA-Datei und bei Verzicht eine Zuwendungsbestätigung.
 
-Stammdaten, Steuerlogik, Einreichportal und **Freigabe-Workflow** stehen. Freigeber prüfen Positionen je Kostenstelle, der Schatzmeister gibt final frei; Rückfragen gehen per Mail zurück an den Einreicher. Spenden-PDF und Exporte folgen als Nächstes.
+MVP-Kern steht: Stammdaten, Steuerlogik, Einreichportal, Freigabe, **Zuwendungsbestätigung (PDF)** und **Zahlungslauf** mit Buchungsliste (CSV), SEPA pain.001 und Beleg-ZIP. Deployment-Anleitung (Lightsail) folgt als Nächstes.
 
 ## Was du zum Start brauchst
 
@@ -79,6 +79,10 @@ Wenn der Start meldet, dass Port 5432 oder 8000 schon belegt ist, beendet das an
 2. Schatzmeister: Gruppe **Schatzmeister**, Team-Anmeldung + Authenticator.
 3. Nach Einreichung: `/einreichen/pruefung/` → Position freigeben oder Rückfrage.
 4. Wenn alle Positionen ok: `/einreichen/schatzmeister/` → final freigeben (Vollverzicht → Status Erledigt).
+5. **Finanzen:** `/einreichen/finanzen/` → Zahlungslauf → CSV / SEPA / Beleg-ZIP → „Als überwiesen markieren“ (überweist nicht selbst).
+6. **Zuwendungen:** `/einreichen/finanzen/zuwendungen/` → Sammelbestätigung je Person/Jahr als PDF. Vorlage unter Einstellungen editierbar; amtlichen Text vor dem Echtbetrieb prüfen lassen.
+
+In den Einstellungen braucht der Zahlungslauf IBAN/Kontoinhaber des Vereins; die Spendenbuchung braucht Konto Spendenertrag und Gegenkonto.
 
 Wanderwege lassen sich nicht auf einen Vorsteuerabzug umstellen und nicht aus dem ideellen Bereich herausnehmen. Eine Person kann die eigenen Positionen nicht sachlich freigeben. Nach einer Auszahlung lässt sich der Verzicht nicht mehr ändern. Statusänderungen und Freigaben stehen im **Änderungsprotokoll**.
 

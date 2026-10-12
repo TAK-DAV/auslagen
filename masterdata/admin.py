@@ -4,6 +4,7 @@ from masterdata.models import (
     Account,
     AccountMapping,
     CostCenter,
+    ExportProfile,
     Hut,
     MileageRate,
     OrganizationSettings,
@@ -119,6 +120,13 @@ class OrganizationSettingsAdmin(admin.ModelAdmin):
             "Freistellungsbescheid",
             {"fields": ("exemption_notice_date", "exemption_tax_office", "exemption_reference")},
         ),
+        (
+            "Zuwendungsbestätigung",
+            {
+                "fields": ("donation_confirmation_template",),
+                "description": "Leer lassen für die Standardvorlage. Amtlichen Text vor dem Echtbetrieb prüfen.",
+            },
+        ),
     )
 
     def has_add_permission(self, request):
@@ -126,6 +134,12 @@ class OrganizationSettingsAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(ExportProfile)
+class ExportProfileAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "is_active")
+    search_fields = ("name", "code")
 
 
 @admin.register(SolvencyConfirmation)

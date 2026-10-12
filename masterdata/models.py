@@ -302,6 +302,14 @@ class OrganizationSettings(models.Model):
     exemption_notice_date = models.DateField("Datum Freistellungsbescheid", null=True, blank=True)
     exemption_tax_office = models.CharField("Finanzamt", max_length=200, blank=True)
     exemption_reference = models.CharField("Aktenzeichen Freistellungsbescheid", max_length=200, blank=True)
+    donation_confirmation_template = models.TextField(
+        "Vorlage Zuwendungsbestätigung",
+        blank=True,
+        help_text=(
+            "Editierbarer Text. Leer = Standardvorlage. "
+            "# FACHLICH OFFEN: amtlichen Mustertext vor dem Echtbetrieb eintragen."
+        ),
+    )
 
     class Meta:
         verbose_name = "Einstellungen"
@@ -335,6 +343,23 @@ class OrganizationSettings(models.Model):
         if person.member_type == MemberType.EMPLOYEE and not self.donations_enabled_for_employees:
             return False
         return True
+
+
+class ExportProfile(models.Model):
+    """Named CSV column mapping. Generic first; Webling/Lexware later."""
+
+    code = models.SlugField("Kürzel", unique=True)
+    name = models.CharField("Name", max_length=100)
+    description = models.TextField("Beschreibung", blank=True)
+    is_active = models.BooleanField("Aktiv", default=True)
+
+    class Meta:
+        verbose_name = "Exportprofil"
+        verbose_name_plural = "Exportprofile"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
 
 
 class SolvencyConfirmation(models.Model):

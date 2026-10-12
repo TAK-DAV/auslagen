@@ -1,0 +1,25 @@
+{% extends "portal/base.html" %}
+{% block title %}Zuwendungsbestätigungen{% endblock %}
+{% block content %}
+<h1>Zuwendungsbestätigungen</h1>
+<p><a href="{% url 'portal:team_home' %}">← Team</a></p>
+<form method="get" class="stack">
+  <label>Kalenderjahr <input type="number" name="year" value="{{ year }}"></label>
+  <button type="submit" class="secondary button">Anzeigen</button>
+</form>
+<p class="muted">Arbeitstext als PDF. Amtlichen Mustertext vor dem Echtbetrieb in den Einstellungen eintragen und prüfen lassen.</p>
+<ul class="cards">
+  {% for person in people %}
+  <li>
+    {{ person }} ({{ person.email }})
+    <form method="post" class="inline">{% csrf_token %}
+      <input type="hidden" name="year" value="{{ year }}">
+      <input type="hidden" name="person_id" value="{{ person.pk }}">
+      <button type="submit" name="issue" value="1" class="primary">PDF erzeugen</button>
+    </form>
+  </li>
+  {% empty %}
+  <li>Keine Verzichte in {{ year }}.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

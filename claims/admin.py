@@ -223,9 +223,10 @@ class PaymentRunAdmin(admin.ModelAdmin):
 
 @admin.register(DonationConfirmation)
 class DonationConfirmationAdmin(admin.ModelAdmin):
-    list_display = ("person", "calendar_year", "created_at")
+    list_display = ("person", "calendar_year", "total_amount", "issued_at", "created_at")
     autocomplete_fields = ("person",)
     search_fields = ("person__email", "person__last_name")
+    readonly_fields = ("total_amount", "issued_at", "body_text", "pdf", "created_at")
 
 
 @admin.register(AuditLog)
