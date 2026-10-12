@@ -1,13 +1,6 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Team-Anmeldung</title>
-  <link rel="stylesheet" href="/static/portal.css">
-</head>
-<body>
-<main>
+{% extends "portal/base.html" %}
+{% block title %}Team-Anmeldung{% endblock %}
+{% block content %}
   <h1>Team-Anmeldung</h1>
   <p>Für Freigeber, Schatzmeister und Admins. Anschließend Zwei-Faktor-Code.</p>
   <form method="post" class="stack">
@@ -16,6 +9,4 @@
     <button type="submit" class="primary">Anmelden</button>
   </form>
   <p><a href="{% url 'portal:login_request' %}">Zurück zur Einreicher-Anmeldung</a></p>
-</main>
-</body>
-</html>
+{% endblock %}

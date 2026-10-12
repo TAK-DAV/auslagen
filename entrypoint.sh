@@ -36,6 +36,7 @@ PY
 
 echo "Datenbank ist erreichbar. Migrationen laufen."
 python manage.py migrate --noinput
+python manage.py createcachetable --verbosity 0 2>/dev/null || true
 echo "Stammdaten werden angelegt."
 python manage.py seed_masterdata
 if [ "${DJANGO_DEBUG:-0}" != "1" ]; then

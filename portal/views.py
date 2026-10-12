@@ -8,11 +8,14 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from claims.models import DonationChoice, ExpenseReport, FactualReview, LineItem, ReportStatus
 from masterdata.models import TaxRate
+from django.conf import settings
+
 from people.auth_helpers import user_can_submit_expenses, user_requires_staff_login
 from people.magic_link import consume_login_token, create_login_token, send_magic_link_email
 from people.models import Person
 from portal.decorators import submitter_required
 from portal.forms import LineItemForm, LoginRequestForm, PrivacyForm, ProfileForm, SubmitReportForm, StaffLoginForm
+from portal.ratelimit import client_ip, hit, log_auth_failed, log_rate_limited
 
 
 def _draft_report_for(user, pk):
@@ -28,14 +31,39 @@ def login_request(request):
         return redirect("portal:report_list")
     form = LoginRequestForm(request.POST or None)
     sent = False
+    rate_limited = False
     if request.method == "POST" and form.is_valid():
+        ip = client_ip(request)
         email = form.cleaned_data["email"].lower()
-        user = Person.objects.filter(email=email, is_active=True).first()
-        if user and not user_requires_staff_login(user):
-            raw = create_login_token(user)
-            send_magic_link_email(user, raw)
-        sent = True
-    return render(request, "portal/login_request.html", {"form": form, "sent": sent})
+        window = settings.RATELIMIT_MAGIC_LINK_WINDOW
+        if hit(
+            "magic_ip",
+            ip,
+            limit=settings.RATELIMIT_MAGIC_LINK_IP,
+            window_seconds=window,
+        ) or hit(
+            "magic_email",
+            email,
+            limit=settings.RATELIMIT_MAGIC_LINK_EMAIL,
+            window_seconds=window,
+        ):
+            log_rate_limited(request, action="magic_link")
+            rate_limited = True
+            messages.error(
+                request,
+                "Zu viele Anfragen. Bitte in etwa einer Stunde erneut versuchen.",
+            )
+        else:
+            user = Person.objects.filter(email=email, is_active=True).first()
+            if user and not user_requires_staff_login(user):
+                raw = create_login_token(user)
+                send_magic_link_email(user, raw)
+            sent = True
+    return render(
+        request,
+        "portal/login_request.html",
+        {"form": form, "sent": sent and not rate_limited, "rate_limited": rate_limited},
+    )
 
 
 def magic_login(request, token: str):
@@ -182,12 +210,27 @@ def staff_login(request):
         return redirect("portal:staff_totp")
     form = StaffLoginForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
+        ip = client_ip(request)
+        if hit(
+            "staff_login_ip",
+            ip,
+            limit=settings.RATELIMIT_STAFF_LOGIN_IP,
+            window_seconds=settings.RATELIMIT_STAFF_LOGIN_WINDOW,
+        ):
+            log_rate_limited(request, action="staff_login")
+            messages.error(
+                request,
+                "Zu viele Anmeldeversuche. Bitte später erneut versuchen.",
+            )
+            return render(request, "portal/staff_login.html", {"form": form})
+        email = form.cleaned_data["email"].lower()
         user = authenticate(
             request,
-            username=form.cleaned_data["email"].lower(),
+            username=email,
             password=form.cleaned_data["password"],
         )
         if user is None or not user.is_active or not user_requires_staff_login(user):
+            log_auth_failed(request, action="staff_login", detail=email)
             messages.error(request, "Anmeldung fehlgeschlagen.")
         else:
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
@@ -206,10 +249,21 @@ def staff_totp(request):
     if request.method == "POST" and "token" in request.POST:
         from django_otp import match_token
 
+        ip = client_ip(request)
+        if hit(
+            "staff_totp_ip",
+            ip,
+            limit=settings.RATELIMIT_STAFF_TOTP_IP,
+            window_seconds=settings.RATELIMIT_STAFF_TOTP_WINDOW,
+        ):
+            log_rate_limited(request, action="staff_totp")
+            messages.error(request, "Zu viele Versuche. Bitte später erneut versuchen.")
+            return render(request, "portal/staff_totp_verify.html")
         if match_token(request.user, request.POST.get("token", "")):
             request.session["otp_verified"] = True
             messages.success(request, "Zwei-Faktor-Anmeldung erfolgreich.")
             return redirect("portal:team_home")
+        log_auth_failed(request, action="staff_totp", detail=request.user.email)
         messages.error(request, "Der Code war nicht korrekt.")
     if not device:
         return render(request, "portal/staff_totp_setup.html", _totp_setup_context(request))
