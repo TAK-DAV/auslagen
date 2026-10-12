@@ -107,7 +107,7 @@ Am Ende steht eine Zeile mit der Anzahl bestandener Tests. Eine fehlgeschlagene 
 
 ## Betrieb (Produktion)
 
-Schritt für Schritt auf AWS Lightsail (Frankfurt), inkl. Route 53, Caddy/HTTPS, `.env`, Start, täglichem Backup nach S3 und Updates: **[docs/deployment.md](docs/deployment.md)**.
+Schritt für Schritt auf AWS Lightsail (Frankfurt), Domain **`auslagen.service.dav-tak.de`**, Caddy/HTTPS, `.env`, Start, täglichem Backup nach S3 und Updates: **[docs/deployment.md](docs/deployment.md)**.
 
 Kurzbefehl auf dem Server nach dem ersten Setup:
 

@@ -1,6 +1,6 @@
 # Betrieb und Hosting
 
-Festgehaltene Entscheidung und **Schritt-für-Schritt-Anleitung** für den Echtbetrieb auf AWS Lightsail. Alle Befehle kannst du kopieren. Ersetze nur die Platzhalter in `GROSSBUCHSTABEN`.
+Festgehaltene Entscheidung und **Schritt-für-Schritt-Anleitung** für den Echtbetrieb auf AWS Lightsail. Alle Befehle kannst du kopieren. Ersetze nur die Platzhalter in `GROSSBUCHSTABEN` (z. B. die Lightsail-IP).
 
 ## Entscheidung
 
@@ -9,12 +9,10 @@ Festgehaltene Entscheidung und **Schritt-für-Schritt-Anleitung** für den Echtb
 | Cloud | Bestehender AWS-Account der Sektion |
 | Server | AWS Lightsail in der Region Frankfurt (`eu-central-1`) |
 | Laufzeit | Docker Compose Produktion (`docker-compose.prod.yml`: `web` + `db` + Caddy) |
-| DNS | Route 53; eine der beiden vorhandenen Subdomains zeigt auf die Lightsail-IP |
+| DNS / Domain | **`auslagen.service.dav-tak.de`** (Route 53 → Lightsail-IP) |
 | HTTPS | Caddy mit Let’s Encrypt |
 | Backup | Täglich DB-Dump + Belege lokal, Kopie nach S3 (außerhalb des Servers) |
 | Nicht | Kein EKS für dieses Tool |
-
-# FACHLICH OFFEN: welche der beiden Subdomains für das Auslagen-Tool gilt. Im Folgenden heißt sie `AUSLAGEN.BEISPIEL.DE`.
 
 Ohne funktionierendes externes Backup gilt der Betrieb nicht als fertig.
 
@@ -23,7 +21,7 @@ Ohne funktionierendes externes Backup gilt der Betrieb nicht als fertig.
 ## Was du brauchst
 
 - AWS-Zugang der Sektion (Lightsail + Route 53 + ein S3-Bucket für Backups)
-- Die gewählte Subdomain
+- DNS-Rechte für `service.dav-tak.de` (A-Record `auslagen`)
 - Eine E-Mail-Adresse für Let’s Encrypt (Caddy) und für ausgehende Mails (Magic Links)
 - SSH-Zugang zum neuen Server
 
@@ -46,16 +44,16 @@ Empfohlene Lightsail-Größe zum Start: **2 GB RAM**, Ubuntu 24.04, Region **Fra
 
 ## 2. DNS in Route 53
 
-1. Die Hosted Zone der Sektion öffnen.
-2. Einen **A-Record** für die gewählte Subdomain anlegen:
-   - Name: z. B. `auslagen` (ergibt `auslagen.eure-domain.de`)
+1. Die Hosted Zone für `service.dav-tak.de` (bzw. die Zone, unter der dieser Name liegt) öffnen.
+2. Einen **A-Record** anlegen:
+   - Name: `auslagen` (vollqualifiziert: `auslagen.service.dav-tak.de`)
    - Typ: **A**
    - Wert: `LIGHTSAIL_IP`
    - TTL: 300
 3. Warten, bis die Domain auflöst (oft wenige Minuten):
 
 ```bash
-dig +short AUSLAGEN.BEISPIEL.DE
+dig +short auslagen.service.dav-tak.de
 ```
 
 Die Ausgabe muss `LIGHTSAIL_IP` sein.
@@ -128,10 +126,10 @@ Trage mindestens ein (Beispielwerte ersetzen):
 ```bash
 DJANGO_SECRET_KEY=HIER_openssl_rand_-base64_48_EINFUEGEN
 DJANGO_DEBUG=0
-DJANGO_ALLOWED_HOSTS=AUSLAGEN.BEISPIEL.DE
-CSRF_TRUSTED_ORIGINS=https://AUSLAGEN.BEISPIEL.DE
-SITE_URL=https://AUSLAGEN.BEISPIEL.DE
-SITE_DOMAIN=AUSLAGEN.BEISPIEL.DE
+DJANGO_ALLOWED_HOSTS=auslagen.service.dav-tak.de
+CSRF_TRUSTED_ORIGINS=https://auslagen.service.dav-tak.de
+SITE_URL=https://auslagen.service.dav-tak.de
+SITE_DOMAIN=auslagen.service.dav-tak.de
 
 POSTGRES_DB=auslagen
 POSTGRES_USER=auslagen
@@ -139,7 +137,7 @@ POSTGRES_PASSWORD=HIER_STARKES_PASSWORT
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
 
-DEFAULT_FROM_EMAIL=auslagen@EURE-DOMAIN.DE
+DEFAULT_FROM_EMAIL=auslagen@dav-tak.de
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.EURE-DOMAIN.DE
 EMAIL_PORT=587
@@ -179,7 +177,7 @@ Ersten Admin-Zugang anlegen:
 docker compose -f docker-compose.prod.yml exec -it web python manage.py createsuperuser
 ```
 
-Im Browser öffnen: `https://AUSLAGEN.BEISPIEL.DE/`  
+Im Browser öffnen: `https://auslagen.service.dav-tak.de/`  
 Team-Anmeldung → Authenticator → Verwaltungsbereich.
 
 Wenn HTTPS nicht kommt: DNS noch nicht propagiert, oder Ports 80/443 in der Lightsail-Firewall fehlen.
