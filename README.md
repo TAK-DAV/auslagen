@@ -2,7 +2,7 @@
 
 Web-App für die Auslagen einer DAV-Sektion. Ehrenamtliche und Angestellte reichen Belege ein, zwei Personen prüfen, am Ende stehen Buchungsliste, SEPA-Datei und bei Verzicht eine Zuwendungsbestätigung.
 
-MVP-Kern steht: Stammdaten, Steuerlogik, Einreichportal, Freigabe, **Zuwendungsbestätigung (PDF)** und **Zahlungslauf** mit Buchungsliste (CSV), SEPA pain.001 und Beleg-ZIP. Deployment-Anleitung (Lightsail) folgt als Nächstes.
+MVP steht: Stammdaten, Steuerlogik, Einreichportal, Freigabe, Zuwendungsbestätigung, Zahlungslauf/Exporte und die **Lightsail-Deployment-Anleitung**.
 
 ## Was du zum Start brauchst
 
@@ -105,9 +105,18 @@ Am Ende steht eine Zeile mit der Anzahl bestandener Tests. Eine fehlgeschlagene 
 - Über der Kleinbetragsgrenze (DE 250 €, AT 400 €) erscheint ein Hinweis auf eine vollständige Rechnung.
 - Vorschüsse sind nicht enthalten.
 
-## Betrieb
+## Betrieb (Produktion)
 
-Echtbetrieb: AWS Lightsail in Frankfurt, Docker Compose wie lokal, DNS über die vorhandenen Route-53-Subdomains, HTTPS auf dem Server, tägliches Backup von Datenbank und Belegen außerhalb des Servers. Kein EKS für dieses Tool. Details und offene Punkte: [docs/deployment.md](docs/deployment.md). Die genaue Server-Anleitung folgt in Phase 7.
+Schritt für Schritt auf AWS Lightsail (Frankfurt), Domain **`auslagen.service.dav-tak.de`**, Caddy/HTTPS, `.env`, Start, täglichem Backup nach S3 und Updates: **[docs/deployment.md](docs/deployment.md)**.
+
+Kurzbefehl auf dem Server nach dem ersten Setup:
+
+```bash
+cd /opt/auslagen
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Update später: `/opt/auslagen/deploy/update.sh`
 
 ## Fachlich offen
 

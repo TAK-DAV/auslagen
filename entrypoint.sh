@@ -38,4 +38,8 @@ echo "Datenbank ist erreichbar. Migrationen laufen."
 python manage.py migrate --noinput
 echo "Stammdaten werden angelegt."
 python manage.py seed_masterdata
+if [ "${DJANGO_DEBUG:-0}" != "1" ]; then
+  echo "Statische Dateien werden gesammelt."
+  python manage.py collectstatic --noinput
+fi
 exec "$@"
