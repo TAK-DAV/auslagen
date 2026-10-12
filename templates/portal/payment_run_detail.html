@@ -1,0 +1,25 @@
+{% extends "portal/base.html" %}
+{% block title %}Zahlungslauf #{{ run.pk }}{% endblock %}
+{% block content %}
+<h1>Zahlungslauf #{{ run.pk }}</h1>
+<p>Angelegt {{ run.created_at|date:"d.m.Y H:i" }} · Summe Auszahlung {{ total }} €
+  {% if run.marked_paid_at %}· als überwiesen am {{ run.marked_paid_at|date:"d.m.Y H:i" }}{% endif %}
+</p>
+<ul>
+  {% for report in reports %}
+  <li>#{{ report.pk }} · {{ report.submitter }} · {{ report.payout_amount }} € · {{ report.get_status_display }}</li>
+  {% endfor %}
+</ul>
+<p>
+  <a class="button" href="{% url 'portal:payment_run_csv' run.pk %}">Buchungsliste CSV</a>
+  <a class="button secondary" href="{% url 'portal:payment_run_sepa' run.pk %}">SEPA pain.001</a>
+  <a class="button secondary" href="{% url 'portal:payment_run_zip' run.pk %}">Belege ZIP</a>
+</p>
+{% if not run.marked_paid_at %}
+<form method="post" action="{% url 'portal:payment_run_mark_paid' run.pk %}">{% csrf_token %}
+  <button type="submit" class="primary">Als überwiesen markieren</button>
+</form>
+<p class="muted">Das Tool überweist nicht selbst. Erst markieren, wenn die Datei im Bankportal liegt.</p>
+{% endif %}
+<p><a href="{% url 'portal:finance_home' %}">← Finanzen</a></p>
+{% endblock %}

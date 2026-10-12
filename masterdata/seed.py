@@ -114,3 +114,13 @@ def seed_masterdata():
 
     for role_name in ROLE_NAMES:
         Group.objects.get_or_create(name=role_name)
+
+    from masterdata.models import ExportProfile
+
+    ExportProfile.objects.get_or_create(
+        code="generic",
+        defaults={
+            "name": "Generische Buchungsliste",
+            "description": "CSV mit Semikolon. Später Profile für Webling oder Lexware ergänzen.",
+        },
+    )

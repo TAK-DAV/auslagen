@@ -6,6 +6,7 @@ _PROTECTED_PREFIXES = (
     "/admin/",
     "/einreichen/pruefung/",
     "/einreichen/schatzmeister/",
+    "/einreichen/finanzen/",
     "/einreichen/team/",
 )
 

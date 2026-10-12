@@ -582,8 +582,12 @@ class PaymentRun(models.Model):
         return f"Zahlungslauf {self.pk} vom {self.created_at:%d.%m.%Y}"
 
 
+def donation_pdf_upload_to(instance, filename: str) -> str:
+    return f"donations/{instance.calendar_year}/{filename}"
+
+
 class DonationConfirmation(models.Model):
-    """Yearly donation receipt. The official PDF is a later phase."""
+    """Yearly Sammelbestätigung for Aufwandsspenden (editable text → PDF)."""
 
     person = models.ForeignKey(
         "people.Person",
@@ -592,6 +596,10 @@ class DonationConfirmation(models.Model):
         related_name="donation_confirmations",
     )
     calendar_year = models.PositiveIntegerField("Kalenderjahr")
+    total_amount = EuroField("Gesamtbetrag", null=True, blank=True)
+    body_text = models.TextField("Text der Bestätigung", blank=True)
+    pdf = models.FileField("PDF", upload_to=donation_pdf_upload_to, blank=True)
+    issued_at = models.DateTimeField("Ausgestellt am", null=True, blank=True)
     created_at = models.DateTimeField("Angelegt am", auto_now_add=True)
 
     class Meta:

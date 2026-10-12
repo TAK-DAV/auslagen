@@ -1,0 +1,21 @@
+{% extends "portal/base.html" %}
+{% block title %}Finanzen{% endblock %}
+{% block content %}
+<h1>Zahlungsläufe und Exporte</h1>
+<p><a href="{% url 'portal:team_home' %}">← Team</a></p>
+<p>{{ eligible_count }} freigegebene Abrechnung(en) warten auf einen Zahlungslauf.</p>
+<p><a class="button" href="{% url 'portal:payment_run_create' %}">Neuen Zahlungslauf anlegen</a></p>
+<h2>Letzte Läufe</h2>
+<ul class="cards">
+  {% for run in runs %}
+  <li>
+    <a href="{% url 'portal:payment_run_detail' run.pk %}">
+      #{{ run.pk }} · {{ run.created_at|date:"d.m.Y H:i" }}
+      {% if run.marked_paid_at %}· überwiesen{% else %}· offen{% endif %}
+    </a>
+  </li>
+  {% empty %}
+  <li>Noch kein Zahlungslauf.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

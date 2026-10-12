@@ -1,0 +1,23 @@
+{% extends "portal/base.html" %}
+{% block title %}Zahlungslauf{% endblock %}
+{% block content %}
+<h1>Zahlungslauf anlegen</h1>
+<form method="post" class="stack">
+  {% csrf_token %}
+  <label>Notiz <input type="text" name="note"></label>
+  <p>Ohne Auswahl werden alle wartenden Abrechnungen übernommen.</p>
+  <ul>
+    {% for report in eligible %}
+    <li>
+      <label>
+        <input type="checkbox" name="report_ids" value="{{ report.pk }}" checked>
+        #{{ report.pk }} · {{ report.submitter }} · {{ report.payout_amount }} €
+      </label>
+    </li>
+    {% empty %}
+    <li>Nichts wartend.</li>
+    {% endfor %}
+  </ul>
+  <button type="submit" class="primary" {% if not eligible %}disabled{% endif %}>Anlegen</button>
+</form>
+{% endblock %}

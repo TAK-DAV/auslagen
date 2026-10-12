@@ -1,6 +1,6 @@
 from django.urls import path
 
-from portal import review_views, views
+from portal import finance_views, review_views, views
 
 app_name = "portal"
 
@@ -44,4 +44,16 @@ urlpatterns = [
         name="treasurer_approve",
     ),
     path("teil/steuersaetze/", views.tax_rates_partial, name="tax_rates_partial"),
+    path("finanzen/", finance_views.finance_home, name="finance_home"),
+    path("finanzen/zahlungslauf/neu/", finance_views.payment_run_create, name="payment_run_create"),
+    path("finanzen/zahlungslauf/<int:pk>/", finance_views.payment_run_detail, name="payment_run_detail"),
+    path("finanzen/zahlungslauf/<int:pk>/csv/", finance_views.payment_run_csv, name="payment_run_csv"),
+    path("finanzen/zahlungslauf/<int:pk>/sepa/", finance_views.payment_run_sepa, name="payment_run_sepa"),
+    path("finanzen/zahlungslauf/<int:pk>/belege/", finance_views.payment_run_zip, name="payment_run_zip"),
+    path(
+        "finanzen/zahlungslauf/<int:pk>/bezahlt/",
+        finance_views.payment_run_mark_paid,
+        name="payment_run_mark_paid",
+    ),
+    path("finanzen/zuwendungen/", finance_views.donations_year, name="donations_year"),
 ]
