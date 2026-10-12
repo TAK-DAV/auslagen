@@ -295,12 +295,53 @@ docker compose -f docker-compose.prod.yml restart web
 
 ---
 
-## 9. Betriebliche Checkliste
+## 9. Absicherung gegen Spam und Angriffe
+
+Die App drosselt Anmeldeversuche selbst:
+
+| Stelle | Grenze (Standard) |
+| --- | --- |
+| Magic-Link pro IP | 5 / Stunde |
+| Magic-Link pro E-Mail | 3 / Stunde |
+| Team-Login (Passwort) pro IP | 10 / Stunde |
+| 2FA-Code pro IP | 20 / Stunde |
+
+Überschreitungen und fehlgeschlagene Team-Logins landen in `/var/log/auslagen/auth.log` (Zeilen mit `AUTH_RATE_LIMIT` / `AUTH_FAIL`).
+
+### Fail2ban auf dem Server (empfohlen)
+
+Vor dem ersten `docker compose … up` das Log-Verzeichnis anlegen:
+
+```bash
+sudo mkdir -p /var/log/auslagen
+sudo chown ubuntu:ubuntu /var/log/auslagen
+```
+
+Fail2ban installieren und Filter übernehmen:
+
+```bash
+sudo apt-get install -y fail2ban
+sudo cp /opt/auslagen/deploy/fail2ban/auslagen-auth.conf /etc/fail2ban/filter.d/auslagen-auth.conf
+sudo cp /opt/auslagen/deploy/fail2ban/jail.auslagen.conf /etc/fail2ban/jail.d/auslagen.conf
+sudo systemctl enable --now fail2ban
+sudo fail2ban-client status auslagen-auth
+```
+
+Nach 8 Treffern innerhalb einer Stunde sperrt Fail2ban die IP für eine Stunde (HTTP/HTTPS). Zum Entsperren:
+
+```bash
+sudo fail2ban-client set auslagen-auth unbanip IP_ADRESSE
+```
+
+Zusätzlich gilt weiterhin: keine Selbstregistrierung, Magic Links nur an bekannte Personen, Schatzmeister mit TOTP, Postgres nicht öffentlich.
+
+## 10. Betriebliche Checkliste
 
 - [ ] Account und Rechnung auf die **Sektion**, nicht privat
-- [ ] Statische IP + Route-53-A-Record
+- [ ] Statische IP + Route-53-A-Record für `auslagen.service.dav-tak.de`
 - [ ] HTTPS erreichbar, Admin-Login mit 2FA
 - [ ] SMTP für Magic-Link-Mails funktioniert (Test: Link anfordern)
+- [ ] `/var/log/auslagen` existiert; Fail2ban-Jail `auslagen-auth` aktiv
 - [ ] Einstellungen: Vereinskonto, Konten, Freistellung, Beschluss Aufwandsersatz
 - [ ] Tägliches Backup läuft; Dateien liegen in **S3**
 - [ ] Mindestens eine Person außer dir kennt SSH- und AWS-Zugang

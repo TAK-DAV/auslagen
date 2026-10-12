@@ -144,3 +144,57 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     # Redirect is handled by Caddy; keep Django's redirect off by default.
+
+# Rate limits (hits per window). Shared across Gunicorn workers via DB cache.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "auslagen_cache",
+    }
+}
+RATELIMIT_MAGIC_LINK_IP = int(os.environ.get("RATELIMIT_MAGIC_LINK_IP", "5"))
+RATELIMIT_MAGIC_LINK_EMAIL = int(os.environ.get("RATELIMIT_MAGIC_LINK_EMAIL", "3"))
+RATELIMIT_MAGIC_LINK_WINDOW = int(os.environ.get("RATELIMIT_MAGIC_LINK_WINDOW", "3600"))
+RATELIMIT_STAFF_LOGIN_IP = int(os.environ.get("RATELIMIT_STAFF_LOGIN_IP", "10"))
+RATELIMIT_STAFF_LOGIN_WINDOW = int(os.environ.get("RATELIMIT_STAFF_LOGIN_WINDOW", "3600"))
+RATELIMIT_STAFF_TOTP_IP = int(os.environ.get("RATELIMIT_STAFF_TOTP_IP", "20"))
+RATELIMIT_STAFF_TOTP_WINDOW = int(os.environ.get("RATELIMIT_STAFF_TOTP_WINDOW", "3600"))
+
+AUTH_LOG_FILE = os.environ.get("AUTH_LOG_FILE", "/var/log/auslagen/auth.log")
+
+_log_handlers = {
+    "console": {
+        "class": "logging.StreamHandler",
+        "formatter": "auth",
+    },
+}
+_log_handler_names = ["console"]
+_auth_log_path = Path(AUTH_LOG_FILE)
+try:
+    _auth_log_path.parent.mkdir(parents=True, exist_ok=True)
+    _log_handlers["auth_file"] = {
+        "class": "logging.FileHandler",
+        "filename": str(_auth_log_path),
+        "formatter": "auth",
+    }
+    _log_handler_names.append("auth_file")
+except OSError:
+    pass
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "auth": {
+            "format": "%(asctime)s %(levelname)s %(message)s",
+        },
+    },
+    "handlers": _log_handlers,
+    "loggers": {
+        "auslagen.auth": {
+            "handlers": _log_handler_names,
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
