@@ -13,6 +13,7 @@ def make_person(email="eva.berg@example.org", **extra):
     password = extra.pop("password", "secret-pass-1")
     extra.setdefault("first_name", "Eva")
     extra.setdefault("last_name", "Berg")
+    extra.setdefault("iban", "DE89370400440532013000")
     return Person.objects.create_user(email, password, **extra)
 
 

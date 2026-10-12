@@ -3,10 +3,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
+from django.urls import include
+
 from tak.views import home
 
 urlpatterns = [
     path("", home, name="home"),
+    path("einreichen/", include("portal.urls")),
     path("admin/", admin.site.urls),
 ]
 

@@ -1,0 +1,38 @@
+{% extends "portal/base.html" %}
+{% block content %}
+<h1>Abrechnung #{{ report.pk }}</h1>
+<p>Status: <strong>{{ report.get_status_display }}</strong>
+  {% if report.submitted_at %} · eingereicht {{ report.submitted_at|date:"d.m.Y H:i" }}{% endif %}
+</p>
+{% if not readonly %}
+  <p>
+    <a class="button" href="{% url 'portal:line_create' report.pk %}">Position hinzufügen</a>
+    <a class="button secondary" href="{% url 'portal:report_submit' report.pk %}">Einreichen</a>
+  </p>
+{% endif %}
+<table class="lines">
+  <thead>
+    <tr><th>Datum</th><th>Art</th><th>Kostenstelle</th><th>Brutto</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for line in lines %}
+      <tr>
+        <td>{{ line.expense_date|date:"d.m.Y" }}</td>
+        <td>{{ line.get_expense_type_display }}</td>
+        <td>{{ line.cost_center.name }}</td>
+        <td>{{ line.gross }} €</td>
+        <td>
+          {% if not readonly %}
+          <form method="post" action="{% url 'portal:line_delete' report.pk line.pk %}">{% csrf_token %}
+            <button type="submit" class="linkish">Entfernen</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">Noch keine Positionen.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="muted">Summe brutto: {{ report.gross_total }} €</p>
+{% endblock %}

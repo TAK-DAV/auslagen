@@ -151,6 +151,8 @@ class ExpenseReport(models.Model):
         lines = list(self.lines.all())
         if not lines:
             errors.append("Mindestens eine Position ist nötig.")
+        if self.payout_amount > 0 and not (self.submitter.iban or "").strip():
+            errors.append("Im Profil fehlt die IBAN für die Überweisung.")
         if not self.donation_choice:
             errors.append("Die Spendenwahl fehlt. Es gibt keine Vorauswahl.")
         if self.donation_choice in WAIVER_CHOICES:

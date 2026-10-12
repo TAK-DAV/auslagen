@@ -1,0 +1,12 @@
+{% extends "portal/base.html" %}
+{% block title %}Einreichen{% endblock %}
+{% block content %}
+<h1>Abrechnung #{{ report.pk }} einreichen</h1>
+<p>Summe brutto: {{ report.gross_total }} €. Es gibt keine Vorauswahl bei der Spende.</p>
+<form method="post" class="stack">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="primary">Verbindlich einreichen</button>
+  <a href="{% url 'portal:report_detail' report.pk %}">Zurück</a>
+</form>
+{% endblock %}

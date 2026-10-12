@@ -1,0 +1,11 @@
+{% extends "portal/base.html" %}
+{% block title %}Profil{% endblock %}
+{% block content %}
+<h1>Profil</h1>
+<p>IBAN brauchst du für die Überweisung. Die Anschrift nur, wenn du auf Erstattung verzichtest.</p>
+<form method="post" class="stack">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="primary">Speichern</button>
+</form>
+{% endblock %}

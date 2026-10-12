@@ -1,0 +1,95 @@
+:root {
+  --ink: #1c241c;
+  --muted: #4a564a;
+  --paper: #f4f1ea;
+  --green: #1f4d38;
+  --line: #d5d0c6;
+  --error: #8b1e1e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.top nav { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+.brand { font-weight: 700; color: var(--green); text-decoration: none; }
+
+main { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+
+h1 { font-size: 1.75rem; line-height: 1.2; }
+
+.stack p { margin: 0.5rem 0; }
+
+.stack label { display: block; font-weight: 600; margin-top: 0.75rem; }
+
+.stack input[type="text"],
+.stack input[type="email"],
+.stack input[type="date"],
+.stack input[type="number"],
+.stack input[type="file"],
+.stack select,
+.stack textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.65rem;
+  font-size: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+}
+
+.primary, .button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button.secondary { background: #fff; color: var(--green); border: 2px solid var(--green); }
+
+.linkish { background: none; border: none; color: var(--green); text-decoration: underline; cursor: pointer; padding: 0; }
+
+.inline { display: inline; margin: 0; }
+
+.messages { list-style: none; padding: 0.75rem 1rem; margin: 0; }
+.messages .error { color: var(--error); }
+.messages .warning { color: #7a5a00; }
+.messages .success { color: var(--green); }
+
+.muted { color: var(--muted); font-size: 0.95rem; }
+.notice { background: #e8f0eb; padding: 0.75rem; border-radius: 0.35rem; }
+
+.cards { list-style: none; padding: 0; }
+.cards li { margin: 0.5rem 0; }
+.cards a { display: block; padding: 0.85rem; background: #fff; border: 1px solid var(--line); border-radius: 0.35rem; text-decoration: none; color: var(--ink); }
+
+.lines { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.lines th, .lines td { border-bottom: 1px solid var(--line); padding: 0.5rem 0.35rem; text-align: left; }
+
+@media (max-width: 480px) {
+  .top nav { font-size: 0.9rem; }
+}

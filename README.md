@@ -2,7 +2,7 @@
 
 Web-App für die Auslagen einer DAV-Sektion. Ehrenamtliche und Angestellte reichen Belege ein, zwei Personen prüfen, am Ende stehen Buchungsliste, SEPA-Datei und bei Verzicht eine Zuwendungsbestätigung.
 
-Stammdaten und Verwaltungsbereich stehen. Die Steuer- und Sphärenlogik rechnet Netto, Steuer und Vorsteuer je Position. Einreichen vom Handy, Freigabe, Spenden-PDF und Exporte folgen als Nächstes.
+Stammdaten, Steuerlogik und ein **Einreichportal** stehen. Ehrenamtliche melden sich per E-Mail-Link an, legen Abrechnungen mit Belegfoto an und reichen ein. Freigabe-Workflow, Spenden-PDF und Exporte folgen als Nächstes.
 
 ## Was du zum Start brauchst
 

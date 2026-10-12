@@ -1,0 +1,19 @@
+{% extends "portal/base.html" %}
+{% block content %}
+<h1>Meine Abrechnungen</h1>
+<form method="post" action="{% url 'portal:report_create' %}">{% csrf_token %}
+  <button type="submit" class="primary">Neue Abrechnung</button>
+</form>
+<ul class="cards">
+  {% for report in reports %}
+    <li>
+      <a href="{% url 'portal:report_detail' report.pk %}">
+        #{{ report.pk }} · {{ report.get_status_display }}
+        · {{ report.gross_total }} € brutto
+      </a>
+    </li>
+  {% empty %}
+    <li>Noch keine Abrechnung. Leg eine neue an.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

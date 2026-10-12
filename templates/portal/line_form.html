@@ -1,0 +1,31 @@
+{% extends "portal/base.html" %}
+{% block title %}Position{% endblock %}
+{% block content %}
+<h1>Position zu Abrechnung #{{ report.pk }}</h1>
+<form method="post" enctype="multipart/form-data" class="stack">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <p class="muted">Beim Beleg: Kamera oder Galerie. PDF geht auch.</p>
+  <button type="submit" class="primary">Speichern</button>
+  <a href="{% url 'portal:report_detail' report.pk %}">Zurück</a>
+</form>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const country = document.getElementById("id_receipt_country");
+    const rate = document.getElementById("id_tax_rate");
+    if (!country || !rate) return;
+    country.addEventListener("change", function () {
+      const url = "{% url 'portal:tax_rates_partial' %}?country=" + encodeURIComponent(country.value);
+      fetch(url).then(r => r.text()).then(html => {
+        const wrap = rate.closest("p") || rate.parentElement;
+        const tmp = document.createElement("div");
+        tmp.innerHTML = html;
+        const newSelect = tmp.querySelector("select");
+        if (newSelect && wrap) {
+          rate.replaceWith(newSelect);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

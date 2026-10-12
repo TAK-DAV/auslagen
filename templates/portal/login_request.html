@@ -1,0 +1,15 @@
+{% extends "portal/base.html" %}
+{% block title %}Anmelden{% endblock %}
+{% block content %}
+<h1>Auslagen einreichen</h1>
+<p>Gib deine E-Mail-Adresse ein. Du bekommst einen Link zum Anmelden – ohne Passwort.</p>
+{% if sent %}
+  <p class="notice">Wenn deine Adresse bei uns hinterlegt ist, ist der Link unterwegs. Er ist 30 Minuten gültig.</p>
+{% endif %}
+<form method="post" class="stack">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="primary">Link senden</button>
+</form>
+<p class="muted">Freigeber und Schatzmeister: <a href="{% url 'portal:staff_login' %}">Team-Anmeldung</a></p>
+{% endblock %}
