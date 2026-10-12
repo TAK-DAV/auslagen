@@ -2,7 +2,7 @@
 
 Web-App für die Auslagen einer DAV-Sektion. Ehrenamtliche und Angestellte reichen Belege ein, zwei Personen prüfen, am Ende stehen Buchungsliste, SEPA-Datei und bei Verzicht eine Zuwendungsbestätigung.
 
-Stammdaten, Steuerlogik und ein **Einreichportal** stehen. Ehrenamtliche melden sich per E-Mail-Link an, legen Abrechnungen mit Belegfoto an und reichen ein. Freigabe-Workflow, Spenden-PDF und Exporte folgen als Nächstes.
+Stammdaten, Steuerlogik, Einreichportal und **Freigabe-Workflow** stehen. Freigeber prüfen Positionen je Kostenstelle, der Schatzmeister gibt final frei; Rückfragen gehen per Mail zurück an den Einreicher. Spenden-PDF und Exporte folgen als Nächstes.
 
 ## Was du zum Start brauchst
 
@@ -48,7 +48,13 @@ docker compose exec -it web python manage.py createsuperuser
 
 Die Abfrage erwartet eine E-Mail-Adresse und zweimal ein Passwort. Das ist der technische Zugang für den Verwaltungsbereich, noch nicht die spätere Anmeldung für Einreicher.
 
-6. Öffne im Browser [http://localhost:8000/](http://localhost:8000/) und dort den Verwaltungsbereich. Melde dich mit der eben angelegten E-Mail an.
+6. Öffne [http://localhost:8000/](http://localhost:8000/). **Auslagen einreichen** für Ehrenamtliche (Magic Link erscheint in der Docker-Konsole, solange `EMAIL_BACKEND` auf Konsole steht). **Team-Anmeldung** für Freigeber und Schatzmeister: Passwort, Authenticator einrichten, dann Verwaltungsbereich.
+
+### Einreicher durchspielen
+
+1. Im Verwaltungsbereich eine Person anlegen (aktiv, ohne Freigeber-/Schatzmeister-Rolle). IBAN eintragen.
+2. `/einreichen/anmelden/` → E-Mail → Link aus der Konsole öffnen → Datenschutz bestätigen.
+3. Abrechnung anlegen, Position mit Beleg (Handy: Kamera) speichern, unter **Einreichen** abschließen.
 
 7. Beenden im ersten Terminal mit Strg+C. Beim nächsten Mal genügt:
 
@@ -65,9 +71,16 @@ Wenn der Start meldet, dass Port 5432 oder 8000 schon belegt ist, beendet das an
 - **Kilometer-Satz.** Ein Standard von 0,30 €. Der Satz 0 ist erlaubt. Sätze je Rolle und Anlass fehlen noch.
 - **Einstellungen.** Kleinbetragsgrenzen 250 € (DE) und 400 € (AT). Die Spendenoption bleibt aus, bis Datum und Fundstelle des Beschlusses zum Aufwandsersatz eingetragen sind. Verzicht für Angestellte ist zusätzlich ausgeschaltet.
 - **Sachkonten.** Bewusst leer. Der Kontenrahmen kommt aus der bestehenden Buchhaltung und wird hier eingetragen, nicht erfunden.
-- **Personen, Abrechnungen, Positionen, Belege, Zahlungsläufe, Zuwendungsbestätigungen, Änderungsprotokoll.** Die Tabellen stehen. Der Ablauf darum herum ist der nächste Ausbau.
+- **Personen, Abrechnungen, Positionen, Belege, Zahlungsläufe, Zuwendungsbestätigungen, Änderungsprotokoll.**
 
-Wanderwege lassen sich nicht auf einen Vorsteuerabzug umstellen und nicht aus dem ideellen Bereich herausnehmen. Eine Person kann die eigenen Positionen nicht sachlich freigeben. Nach einer Auszahlung lässt sich der Verzicht nicht mehr ändern.
+### Freigabe (Team)
+
+1. Person als Freigeber anlegen, Gruppe **Freigeber**, der Kostenstelle unter **Freigeber** zuordnen.
+2. Schatzmeister: Gruppe **Schatzmeister**, Team-Anmeldung + Authenticator.
+3. Nach Einreichung: `/einreichen/pruefung/` → Position freigeben oder Rückfrage.
+4. Wenn alle Positionen ok: `/einreichen/schatzmeister/` → final freigeben (Vollverzicht → Status Erledigt).
+
+Wanderwege lassen sich nicht auf einen Vorsteuerabzug umstellen und nicht aus dem ideellen Bereich herausnehmen. Eine Person kann die eigenen Positionen nicht sachlich freigeben. Nach einer Auszahlung lässt sich der Verzicht nicht mehr ändern. Statusänderungen und Freigaben stehen im **Änderungsprotokoll**.
 
 ## Tests
 

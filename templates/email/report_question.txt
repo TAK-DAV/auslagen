@@ -1,0 +1,12 @@
+Hallo{% if report.submitter.first_name %} {{ report.submitter.first_name }}{% endif %},
+
+zu deiner Abrechnung #{{ report.pk }} gibt es eine Rückfrage:
+
+{{ comment.body }}
+
+— {{ comment.author }}
+
+Die Abrechnung ist wieder ein Entwurf. Bitte anpassen und erneut einreichen:
+{{ url }}
+
+TAK Auslagen

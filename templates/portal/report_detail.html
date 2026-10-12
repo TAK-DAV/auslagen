@@ -35,4 +35,13 @@
   </tbody>
 </table>
 <p class="muted">Summe brutto: {{ report.gross_total }} €</p>
+{% if report.comments.exists %}
+<h2>Rückfragen</h2>
+<ul>
+  {% for c in report.comments.all %}
+  <li><strong>{{ c.author }}</strong> ({{ c.created_at|date:"d.m.Y H:i" }}): {{ c.body }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
 {% endblock %}
+

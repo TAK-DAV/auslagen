@@ -1,0 +1,27 @@
+{% extends "portal/base.html" %}
+{% block title %}Team{% endblock %}
+{% block content %}
+<h1>Team</h1>
+<p>Angemeldet als {{ user.get_full_name|default:user.email }}</p>
+<ul class="cards">
+  {% if is_approver %}
+  <li><a href="{% url 'portal:review_queue' %}">Sachliche Prüfung ({{ awaiting|length }} offen)</a></li>
+  {% endif %}
+  {% if is_treasurer %}
+  <li><a href="{% url 'portal:treasurer_queue' %}">Finale Freigabe ({{ treasurer_queue|length }})</a></li>
+  <li><a href="{% url 'admin:index' %}">Verwaltungsbereich</a></li>
+  {% endif %}
+</ul>
+{% if awaiting %}
+<h2>Als Nächstes prüfen</h2>
+<ul class="cards">
+  {% for line in awaiting %}
+  <li>
+    <a href="{% url 'portal:review_report' line.report_id %}">
+      #{{ line.report_id }} · {{ line.cost_center.name }} · {{ line.gross }} € · {{ line.report.submitter }}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "portal/base.html" %}
+{% block title %}Freigabe #{{ report.pk }}{% endblock %}
+{% block content %}
+<h1>Abrechnung #{{ report.pk }}</h1>
+<p>{{ report.submitter }} · Spende: {{ report.get_donation_choice_display }}
+ · Auszahlung {{ report.payout_amount }} €</p>
+<p>Vorsteuer DE: {{ vat_totals.de }} € · AT: {{ vat_totals.at }} € · Prüfung: {{ vat_totals.review }} €</p>
+<table class="lines">
+  <thead>
+    <tr><th>Datum</th><th>Art</th><th>KSt</th><th>Brutto</th><th>Netto</th><th>Steuer</th><th>Vorsteuer</th><th>Sphäre</th><th>Prüfung</th></tr>
+  </thead>
+  <tbody>
+  {% for line in lines %}
+    <tr>
+      <td>{{ line.expense_date|date:"d.m.Y" }}</td>
+      <td>{{ line.get_expense_type_display }}</td>
+      <td>{{ line.cost_center.name }}</td>
+      <td>{{ line.gross }}</td>
+      <td>{{ line.net }}</td>
+      <td>{{ line.tax_amount }}</td>
+      <td>{{ line.get_vat_result_display }}</td>
+      <td>{% if line.sphere %}{{ line.sphere }}{% else %}—{% endif %}</td>
+      <td>{{ line.get_factual_review_display }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if comments %}
+<h2>Rückfragen</h2>
+<ul>{% for c in comments %}<li>{{ c.author }}: {{ c.body }}</li>{% endfor %}</ul>
+{% endif %}
+{% if all_approved %}
+<form method="post" action="{% url 'portal:treasurer_approve' report.pk %}" class="stack">
+  {% csrf_token %}
+  <label>Notiz (optional)<input type="text" name="reason"></label>
+  <button type="submit" class="primary">Final freigeben</button>
+</form>
+{% else %}
+<p class="notice">Noch nicht alle Positionen sachlich freigegeben.</p>
+{% endif %}
+<p><a href="{% url 'portal:review_question' report.pk %}">Rückfrage stellen</a></p>
+{% endblock %}

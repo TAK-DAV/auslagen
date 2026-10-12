@@ -1,0 +1,41 @@
+{% extends "portal/base.html" %}
+{% block title %}Prüfung #{{ report.pk }}{% endblock %}
+{% block content %}
+<h1>Abrechnung #{{ report.pk }}</h1>
+<p>Einreicher: {{ report.submitter }} · Status: {{ report.get_status_display }}</p>
+{% if can_question %}
+<p><a class="button secondary" href="{% url 'portal:review_question' report.pk %}">Rückfrage stellen</a></p>
+{% endif %}
+<table class="lines">
+  <thead>
+    <tr><th>Datum</th><th>Art</th><th>Kostenstelle</th><th>Brutto</th><th>Prüfung</th><th></th></tr>
+  </thead>
+  <tbody>
+  {% for line in lines %}
+    <tr>
+      <td>{{ line.expense_date|date:"d.m.Y" }}</td>
+      <td>{{ line.get_expense_type_display }}</td>
+      <td>{{ line.cost_center.name }}</td>
+      <td>{{ line.gross }} €</td>
+      <td>{{ line.get_factual_review_display }}</td>
+      <td>
+        {% if line in actionable and line.factual_review != "SACHLICH_FREIGEGEBEN" %}
+        <form method="post" action="{% url 'portal:review_approve_line' report.pk line.pk %}">{% csrf_token %}
+          <button type="submit" class="primary">Freigeben</button>
+        </form>
+        <a href="{% url 'portal:review_question' report.pk %}?line={{ line.pk }}">Rückfrage</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if comments %}
+<h2>Bisherige Rückfragen</h2>
+<ul>
+  {% for c in comments %}
+  <li><strong>{{ c.author }}</strong> ({{ c.created_at|date:"d.m.Y H:i" }}): {{ c.body }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

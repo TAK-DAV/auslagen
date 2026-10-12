@@ -1,0 +1,7 @@
+Hallo,
+
+Abrechnung #{{ report.pk }} von {{ report.submitter }} ist sachlich geprüft und wartet auf die finale Freigabe.
+
+{{ url }}
+
+TAK Auslagen

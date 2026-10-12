@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
-from claims.models import DonationChoice, ExpenseReport, LineItem, ReportStatus
+from claims.models import DonationChoice, ExpenseReport, FactualReview, LineItem, ReportStatus
 from masterdata.models import TaxRate
 from people.auth_helpers import user_can_submit_expenses, user_requires_staff_login
 from people.magic_link import consume_login_token, create_login_token, send_magic_link_email
@@ -144,9 +144,18 @@ def report_submit(request, pk: int):
         else:
             for warning in report.waiver_warnings():
                 messages.warning(request, warning)
+            # Fresh review after a Rückfrage: clear previous line approvals.
+            report.lines.exclude(factual_review=FactualReview.OPEN).update(
+                factual_review=FactualReview.OPEN,
+                factual_reviewed_by=None,
+                factual_reviewed_at=None,
+            )
             report.status = ReportStatus.SUBMITTED
             report.submitted_at = timezone.now()
             report.save()
+            from claims.workflow import mark_submitted
+
+            mark_submitted(report)
             messages.success(request, "Abrechnung eingereicht. Sie wird nun geprüft.")
             return redirect("portal:report_detail", pk=report.pk)
     elif request.method == "GET":
@@ -200,12 +209,12 @@ def staff_totp(request):
         if match_token(request.user, request.POST.get("token", "")):
             request.session["otp_verified"] = True
             messages.success(request, "Zwei-Faktor-Anmeldung erfolgreich.")
-            return redirect("admin:index")
+            return redirect("portal:team_home")
         messages.error(request, "Der Code war nicht korrekt.")
     if not device:
         return render(request, "portal/staff_totp_setup.html", _totp_setup_context(request))
     if request.session.get("otp_verified"):
-        return redirect("admin:index")
+        return redirect("portal:team_home")
     return render(request, "portal/staff_totp_verify.html")
 
 
@@ -234,7 +243,7 @@ def staff_totp_confirm_setup(request):
         device.save()
         request.session["otp_verified"] = True
         messages.success(request, "Authenticator eingerichtet.")
-        return redirect("admin:index")
+        return redirect("portal:team_home")
     messages.error(request, "Der Code war nicht korrekt. Bitte erneut versuchen.")
     return redirect("portal:staff_totp")
 

@@ -1,0 +1,18 @@
+{% extends "portal/base.html" %}
+{% block title %}Sachliche Prüfung{% endblock %}
+{% block content %}
+<h1>Sachliche Prüfung</h1>
+<p><a href="{% url 'portal:team_home' %}">← Team</a></p>
+<ul class="cards">
+  {% for line in lines %}
+  <li>
+    <a href="{% url 'portal:review_report' line.report_id %}">
+      #{{ line.report_id }} · {{ line.get_expense_type_display }} · {{ line.cost_center.name }}
+      · {{ line.gross }} € · {{ line.report.submitter }}
+    </a>
+  </li>
+  {% empty %}
+  <li>Keine offenen Positionen für dich.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
