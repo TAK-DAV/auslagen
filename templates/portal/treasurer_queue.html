@@ -1,0 +1,18 @@
+{% extends "portal/base.html" %}
+{% block title %}Finale Freigabe{% endblock %}
+{% block content %}
+<h1>Finale Freigabe</h1>
+<p><a href="{% url 'portal:team_home' %}">← Team</a></p>
+<ul class="cards">
+  {% for report in reports %}
+  <li>
+    <a href="{% url 'portal:treasurer_report' report.pk %}">
+      #{{ report.pk }} · {{ report.submitter }} · {{ report.gross_total }} € brutto
+      · Auszahlung {{ report.payout_amount }} €
+    </a>
+  </li>
+  {% empty %}
+  <li>Keine Abrechnungen wartend.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

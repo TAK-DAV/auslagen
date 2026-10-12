@@ -1,0 +1,10 @@
+Hallo,
+
+eine Abrechnung wartet auf die sachliche Prüfung.
+
+Abrechnung #{{ report.pk }} von {{ report.submitter }}
+Status: {{ report.get_status_display }}
+
+Prüfen: {{ url }}
+
+TAK Auslagen

@@ -1,0 +1,8 @@
+Hallo{% if report.submitter.first_name %} {{ report.submitter.first_name }}{% endif %},
+
+deine Abrechnung #{{ report.pk }} wurde freigegeben.
+Neuer Status: {{ report.get_status_display }}
+
+{{ url }}
+
+TAK Auslagen
