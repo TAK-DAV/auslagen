@@ -1,6 +1,12 @@
 import pytest
+from django.conf import settings
+from django.test import override_settings
 
 from people.models import Person
+
+ADMIN_TEST_MIDDLEWARE = [
+    m for m in settings.MIDDLEWARE if m != "portal.middleware.StaffOTPVerifiedMiddleware"
+]
 
 
 def test_home_page(client):
@@ -8,10 +14,12 @@ def test_home_page(client):
     assert response.status_code == 200
     body = response.content.decode()
     assert "Auslagen" in body
-    assert "Verwaltungsbereich öffnen" in body
+    assert "Auslagen einreichen" in body
+    assert "Verwaltungsbereich" in body
 
 
 @pytest.mark.django_db
+@override_settings(MIDDLEWARE=ADMIN_TEST_MIDDLEWARE)
 def test_admin_shows_seeded_cost_centers(client, seeded):
     person = Person.objects.create_superuser("schatz@example.org", "secret-pass-1")
     client.force_login(person)

@@ -63,6 +63,11 @@ class Person(AbstractUser):
         blank=True,
         help_text="ISO-Kürzel, zum Beispiel DE oder AT. Pflicht nur bei einem Verzicht.",
     )
+    privacy_acknowledged_at = models.DateTimeField(
+        "Datenschutzhinweis bestätigt am",
+        null=True,
+        blank=True,
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -98,3 +103,25 @@ class Person(AbstractUser):
     @property
     def has_postal_address(self) -> bool:
         return bool(self.street and self.postal_code and self.city and self.address_country)
+
+    @property
+    def privacy_acknowledged(self) -> bool:
+        return self.privacy_acknowledged_at is not None
+
+
+class LoginToken(models.Model):
+    user = models.ForeignKey(
+        Person,
+        verbose_name="Person",
+        on_delete=models.CASCADE,
+        related_name="login_tokens",
+    )
+    token_hash = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Anmeldelink"
+        verbose_name_plural = "Anmeldelinks"
+        ordering = ["-created_at"]

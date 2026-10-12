@@ -17,10 +17,12 @@
       und bei Verzicht eine Zuwendungsbestätigung.
     </p>
     <p>
-      In dieser ersten Fassung liegen Stammdaten und Abrechnungen im Verwaltungsbereich.
-      Das Einreichen vom Handy folgt als Nächstes.
+      Ehrenamtliche reichen Auslagen mit Beleg über das Einreichportal ein – auch vom Handy.
+      Freigeber und Schatzmeister nutzen die Team-Anmeldung mit Zwei-Faktor-Code.
     </p>
-    <a class="button" href="{% url 'admin:index' %}">Verwaltungsbereich öffnen</a>
+    <a class="button" href="{% url 'portal:login_request' %}">Auslagen einreichen</a>
+    <a class="button secondary" href="{% url 'portal:staff_login' %}">Team-Anmeldung</a>
+    <a class="button secondary" href="{% url 'admin:index' %}">Verwaltungsbereich</a>
   </main>
 </body>
 </html>

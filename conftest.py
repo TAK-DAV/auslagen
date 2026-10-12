@@ -8,6 +8,7 @@ os.environ.setdefault("POSTGRES_USER", "auslagen")
 os.environ.setdefault("POSTGRES_PASSWORD", "auslagen")
 os.environ.setdefault("POSTGRES_HOST", "localhost")
 os.environ.setdefault("POSTGRES_PORT", "5432")
+os.environ.setdefault("SITE_URL", "http://testserver")
 
 import pytest
 

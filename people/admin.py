@@ -2,7 +2,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.contrib import admin
 
-from people.models import Person
+from people.models import LoginToken, Person
 
 
 class PersonChangeForm(UserChangeForm):
@@ -42,6 +42,7 @@ class PersonAdmin(UserAdmin):
             "Berechtigungen",
             {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")},
         ),
+        ("Datenschutz", {"fields": ("privacy_acknowledged_at",)}),
         ("Zeitpunkte", {"fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = (
@@ -60,3 +61,13 @@ class PersonAdmin(UserAdmin):
             },
         ),
     )
+
+
+@admin.register(LoginToken)
+class LoginTokenAdmin(admin.ModelAdmin):
+    list_display = ("user", "created_at", "expires_at", "used_at")
+    search_fields = ("user__email",)
+    readonly_fields = ("token_hash", "created_at", "expires_at", "used_at")
+
+    def has_add_permission(self, request):
+        return False

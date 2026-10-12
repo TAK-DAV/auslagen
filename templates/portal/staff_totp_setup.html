@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Authenticator einrichten</title>
+  <link rel="stylesheet" href="/static/portal.css">
+</head>
+<body>
+<main>
+  <h1>Authenticator einrichten</h1>
+  <p>Scanne diesen Link in FreeOTP, Google Authenticator o. Ä.:</p>
+  <p><code>{{ config_url }}</code></p>
+  <form method="post" action="{% url 'portal:staff_totp_confirm' %}" class="stack">
+    {% csrf_token %}
+    <label>Code aus der App<input name="token" inputmode="numeric" required></label>
+    <button type="submit" class="primary">Einrichtung abschließen</button>
+  </form>
+</main>
+</body>
+</html>

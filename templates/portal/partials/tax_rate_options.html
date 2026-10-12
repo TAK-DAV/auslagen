@@ -1,0 +1,6 @@
+<select name="tax_rate" id="id_tax_rate" required>
+  <option value="">—</option>
+  {% for rate in rates %}
+    <option value="{{ rate.pk }}">{{ rate.get_country_display }} {{ rate.rate_percent }} %</option>
+  {% endfor %}
+</select>

@@ -1,0 +1,12 @@
+{% extends "portal/base.html" %}
+{% block title %}Datenschutz{% endblock %}
+{% block content %}
+<h1>Datenschutzhinweis</h1>
+<p>Wir speichern Name, E-Mail, IBAN und – nur bei einem Verzicht auf Erstattung – deine Postanschrift. Belege und Abrechnungen werden für die Buchhaltung aufbewahrt. Hosting erfolgt in der EU.</p>
+<p>Details und Auskunftsrechte: Schatzmeister der Sektion.</p>
+<form method="post" class="stack">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="primary">Weiter zu meinen Abrechnungen</button>
+</form>
+{% endblock %}
