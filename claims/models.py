@@ -9,6 +9,12 @@ from django.db import models
 
 from claims.dates import local_date, waiver_is_late
 from claims.files import receipt_upload_to, sha256_of_file, validate_receipt_file
+from claims.taxation import (
+    apply_to_line,
+    resolve_vat_result,
+    sum_vat,
+    vat_decision_needs_reason,
+)
 from claims.years import club_year_label, club_year_start
 from masterdata.constants import Area, Country, ExpenseType, VatResult
 from masterdata.models import CostCenter, Hut, TaxRate
@@ -134,6 +140,10 @@ class ExpenseReport(models.Model):
     def payout_amount(self) -> Decimal:
         return euros(self.gross_total - self.donation_amount)
 
+    def vat_totals(self):
+        """DE and AT input VAT kept separate for the two VAT returns."""
+        return sum_vat(self.lines.all())
+
     def submission_errors(self) -> list[str]:
         from masterdata.models import OrganizationSettings
 
@@ -253,15 +263,26 @@ class LineItem(models.Model):
         "Netto",
         null=True,
         blank=True,
-        help_text="Die nächste Ausbaustufe rechnet das. Regel: Steuer je Position kaufmännisch runden, Netto = Brutto minus Steuer.",
+        help_text="Steuer je Position kaufmännisch auf den Cent, Netto = Brutto minus Steuer.",
+        editable=False,
     )
-    tax_amount = EuroField("Steuer", null=True, blank=True)
+    tax_amount = EuroField("Steuer", null=True, blank=True, editable=False)
     vat_result = models.CharField(
         "Vorsteuer",
         max_length=10,
         choices=VatResult.choices,
         blank=True,
-        help_text="Leer, bis die Steuerlogik Kostenstelle und Belegland auswertet. Sonstiges startet mit „Prüfung nötig“.",
+        help_text="Automatisch aus Kostenstelle und Belegland. Sonstiges und Land-Konflikt: Prüfung nötig.",
+    )
+    vat_decision_reason = models.TextField(
+        "Begründung zur Vorsteuer",
+        blank=True,
+        help_text="Pflicht, wenn aus „Prüfung nötig“ eine andere Vorsteuer wird.",
+    )
+    requires_full_invoice = models.BooleanField(
+        "Vollständige Rechnung nötig",
+        default=False,
+        help_text="Hinweis: Brutto über der Kleinbetragsgrenze des Beleglands.",
     )
     sphere = models.ForeignKey(
         "masterdata.Sphere",
@@ -389,6 +410,20 @@ class LineItem(models.Model):
         if self.factual_reviewed_by_id and self.report_id:
             if self.factual_reviewed_by_id == self.report.submitter_id:
                 errors["factual_reviewed_by"] = "Eigene Auslagen kann niemand selbst freigeben."
+        if self.cost_center_id and self.gross is not None:
+            automatic = resolve_vat_result(
+                expense_type=self.expense_type,
+                cost_center_vat_mode=self.cost_center.vat_mode,
+                cost_center_country=self.cost_center.country,
+                receipt_country=self.receipt_country or "",
+            )
+            if vat_decision_needs_reason(
+                automatic_result=automatic,
+                stored_result=self.vat_result or "",
+            ) and not (self.vat_decision_reason or "").strip():
+                errors["vat_decision_reason"] = (
+                    "Eine Entscheidung bei „Prüfung nötig“ braucht eine Begründung."
+                )
         if errors:
             raise ValidationError(errors)
 
@@ -398,14 +433,38 @@ class LineItem(models.Model):
             self.club_year_start = club_year_start(self.expense_date)
         if self.document_number is not None and not str(self.document_number).strip():
             self.document_number = None
-        if self.cost_center_id and self.sphere_id is None:
-            self.sphere_id = self.cost_center.default_sphere_id
-        if self.expense_type == ExpenseType.CAR:
-            self.vat_result = VatResult.NONE
-            self.tax_rate_id = None
-        elif self.expense_type == ExpenseType.OTHER and not self.vat_result:
-            self.vat_result = VatResult.REVIEW
+        if self.cost_center_id:
+            apply_to_line(self)
         super().save(*args, **kwargs)
+
+    def tax_notes(self) -> list[str]:
+        """Hints for the treasurer (small invoice, country mismatch). Not blocking."""
+        if not self.cost_center_id or self.gross is None:
+            return []
+        from masterdata.models import OrganizationSettings
+
+        from claims.taxation import compute_line_tax
+
+        settings = OrganizationSettings.load()
+        rate_percent = self.tax_rate.rate_percent if self.tax_rate_id else None
+        result = compute_line_tax(
+            expense_type=self.expense_type,
+            gross=self.gross,
+            rate_percent=rate_percent,
+            cost_center_vat_mode=self.cost_center.vat_mode,
+            cost_center_country=self.cost_center.country,
+            receipt_country=self.receipt_country or "",
+            area=self.area or "",
+            cost_center_area=self.cost_center.area or "",
+            cost_center_sphere_code=(
+                self.cost_center.default_sphere.code
+                if self.cost_center.default_sphere_id
+                else None
+            ),
+            limit_de=settings.small_invoice_limit_de,
+            limit_at=settings.small_invoice_limit_at,
+        )
+        return list(result.notes)
 
     def submission_errors(self) -> list[str]:
         errors = []

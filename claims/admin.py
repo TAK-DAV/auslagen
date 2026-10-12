@@ -17,14 +17,18 @@ class LineItemInline(admin.TabularInline):
     extra = 0
     show_change_link = True
     autocomplete_fields = ("cost_center", "tax_rate", "sphere", "account", "hut", "factual_reviewed_by")
+    readonly_fields = ("net", "tax_amount", "requires_full_invoice")
     fields = (
         "expense_type",
         "expense_date",
         "cost_center",
         "gross",
+        "net",
+        "tax_amount",
         "receipt_country",
         "tax_rate",
         "vat_result",
+        "requires_full_invoice",
         "factual_review",
     )
 
@@ -99,11 +103,21 @@ class LineItemAdmin(admin.ModelAdmin):
         "expense_type",
         "cost_center",
         "gross_display",
+        "net_display",
+        "tax_display",
         "vat_result",
+        "requires_full_invoice",
         "factual_review",
         "club_year_display",
     )
-    list_filter = ("expense_type", "vat_result", "factual_review", "receipt_country", "calendar_year")
+    list_filter = (
+        "expense_type",
+        "vat_result",
+        "requires_full_invoice",
+        "factual_review",
+        "receipt_country",
+        "calendar_year",
+    )
     search_fields = ("purpose", "description", "document_number", "report__submitter__last_name")
     autocomplete_fields = (
         "report",
@@ -115,7 +129,7 @@ class LineItemAdmin(admin.ModelAdmin):
         "hut",
         "factual_reviewed_by",
     )
-    readonly_fields = ("calendar_year", "club_year_display")
+    readonly_fields = ("calendar_year", "club_year_display", "net", "tax_amount", "requires_full_invoice")
     fieldsets = (
         (None, {"fields": ("report", "expense_type", "expense_date", "cost_center", "gross")}),
         (
@@ -127,10 +141,16 @@ class LineItemAdmin(admin.ModelAdmin):
                     "net",
                     "tax_amount",
                     "vat_result",
+                    "vat_decision_reason",
+                    "requires_full_invoice",
                     "sphere",
                     "sphere_override_reason",
                     "account",
-                )
+                ),
+                "description": (
+                    "Netto und Steuer rechnet das System. "
+                    "Vorsteuer DE und AT bleiben in Auswertungen getrennt."
+                ),
             },
         ),
         ("Beleg", {"fields": ("receipt", "document_number")}),
@@ -170,6 +190,14 @@ class LineItemAdmin(admin.ModelAdmin):
     @admin.display(description="Brutto", ordering="gross")
     def gross_display(self, obj):
         return format_eur(obj.gross)
+
+    @admin.display(description="Netto", ordering="net")
+    def net_display(self, obj):
+        return format_eur(obj.net)
+
+    @admin.display(description="Steuer", ordering="tax_amount")
+    def tax_display(self, obj):
+        return format_eur(obj.tax_amount)
 
     @admin.display(description="Vereinsjahr")
     def club_year_display(self, obj):
